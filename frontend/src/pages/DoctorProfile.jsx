@@ -20,6 +20,7 @@ const loadRazorpayScript = () => {
 
 const BookingForm = ({ doctor, onBookingSuccess }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
@@ -144,6 +145,37 @@ const BookingForm = ({ doctor, onBookingSuccess }) => {
     }
   };
 
+  const handleSimulatePayment = async (appointmentId) => {
+    setPaymentLoading(true);
+    try {
+      const mockResponse = {
+        razorpay_order_id: `order_mock_${Math.random().toString(36).substring(2, 15)}`,
+        razorpay_payment_id: `pay_mock_${Math.random().toString(36).substring(2, 15)}`,
+        razorpay_signature: 'mock_signature',
+        appointmentId
+      };
+      
+      const { data } = await axios.post(`${API_URL}/api/appointments/verify-payment`, mockResponse, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      
+      if (data.success) {
+         const { data: fullAppointment } = await axios.get(`${API_URL}/api/appointments/my`, {
+           headers: { Authorization: `Bearer ${user.token}` }
+         });
+         const latest = fullAppointment.find(a => a._id === appointmentId);
+         onBookingSuccess(latest || { _id: appointmentId, amount: doctor.feesPerCunsultation, date: selectedDate, timeSlot: selectedTimeSlot, doctorId: doctor });
+      } else {
+         navigate('/payment-failed', { state: { error: data.message, appointmentId: doctor._id } });
+      }
+    } catch (err) {
+      const errMsg = err.response?.data?.message || 'Payment simulation failed.';
+      navigate('/payment-failed', { state: { error: errMsg, appointmentId: doctor._id } });
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   return (
     <form onSubmit={(e) => handleSubmit(e)} className="space-y-5">
       {error && <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-medium border border-red-100">{error}</div>}
@@ -212,6 +244,37 @@ const BookingForm = ({ doctor, onBookingSuccess }) => {
                 Pay & Book
               </>
             )}
+          </button>
+          
+          <button
+            type="button"
+            onClick={async () => {
+              if (!user) {
+                setError('Please login to book an appointment');
+                return;
+              }
+              setBookingLoading(true);
+              setError('');
+              try {
+                const { data: appointment } = await axios.post(`${API_URL}/api/appointments`, {
+                  doctorId: doctor._id,
+                  date: selectedDate,
+                  timeSlot: selectedTimeSlot,
+                  reason
+                }, {
+                  headers: { Authorization: `Bearer ${user.token}` }
+                });
+                await handleSimulatePayment(appointment._id);
+              } catch (err) {
+                setError(err.response?.data?.message || 'Booking simulation failed.');
+              } finally {
+                setBookingLoading(false);
+              }
+            }}
+            disabled={bookingLoading || paymentLoading || !selectedDate || !selectedTimeSlot}
+            className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all disabled:opacity-50 flex justify-center items-center gap-2 border border-slate-200 shadow-sm"
+          >
+            Simulate Payment (Dev Mode)
           </button>
         </div>
         

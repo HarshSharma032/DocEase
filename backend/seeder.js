@@ -50,7 +50,7 @@ const importData = async () => {
       feesPerCunsultation: 1500,
       about: 'Expert cardiologist with a history of treating complex heart conditions.',
       clinicAddress: '123 Medical Drive, Health City',
-      isApproved: true,
+      status: 'approved',
       ratings: 4.8,
       numOfReviews: 124,
       availableDays: [
@@ -82,7 +82,7 @@ const importData = async () => {
       feesPerCunsultation: 800,
       about: 'Specializes in skin conditions and cosmetic procedures.',
       clinicAddress: 'Skin Care Center, Downtown',
-      isApproved: true,
+      status: 'approved',
       ratings: 4.6,
       numOfReviews: 89,
       availableDays: [
@@ -113,7 +113,7 @@ const importData = async () => {
       feesPerCunsultation: 500,
       about: 'A dedicated physician with a focus on holistic care.',
       clinicAddress: '45 Green Valley, Suburbs',
-      isApproved: false, // PENDING
+      status: 'pending', // PENDING
       availableDays: [
         {
           day: 'Monday',

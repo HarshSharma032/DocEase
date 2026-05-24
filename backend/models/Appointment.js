@@ -21,8 +21,8 @@ const appointmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'rejected', 'completed', 'cancelled'],
-    default: 'pending'
+    enum: ['Pending', 'Accepted', 'Rejected', 'Completed', 'Cancelled'],
+    default: 'Pending'
   },
   reason: {
     type: String
@@ -36,8 +36,8 @@ const appointmentSchema = new mongoose.Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'success', 'failed'],
-    default: 'pending'
+    enum: ['Pending', 'Completed', 'Failed'],
+    default: 'Pending'
   },
   paymentId: {
     type: mongoose.Schema.Types.ObjectId,

@@ -21,7 +21,7 @@ const getDoctors = async (req, res) => {
       return res.json(cached);
     }
 
-    const query = { isApproved: true };
+    const query = { status: 'approved' };
 
     if (keyword) {
       query.$or = [
@@ -61,7 +61,7 @@ const getDoctors = async (req, res) => {
 const getDoctorById = async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.id).select('-password').lean();
-    if (doctor && doctor.isApproved) {
+    if (doctor && doctor.status === 'approved') {
       res.json(doctor);
     } else {
       res.status(404).json({ message: 'Doctor not found or not approved' });

@@ -9,7 +9,8 @@ const Toast = ({ message, type = 'info', onClose }) => {
     error: 'bg-red-50 border-red-200 text-red-800',
     info: 'bg-blue-50 border-blue-200 text-blue-800'
   };
-  const Icon = icons[type];
+  const Icon = icons[type] || Info;
+  const themeClass = colors[type] || colors.info;
 
   useEffect(() => {
     const timer = setTimeout(onClose, 4000);
@@ -21,7 +22,7 @@ const Toast = ({ message, type = 'info', onClose }) => {
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 50 }}
-      className={`flex items-start gap-3 p-4 rounded-xl border shadow-lg max-w-sm ${colors[type]}`}
+      className={`flex items-start gap-3 p-4 rounded-xl border shadow-lg max-w-sm ${themeClass}`}
     >
       <Icon className="w-5 h-5 shrink-0 mt-0.5" />
       <p className="text-sm font-medium flex-1">{message}</p>
@@ -37,7 +38,7 @@ export const ToastContainer = () => {
 
   useEffect(() => {
     const handler = (e) => {
-      const id = Date.now();
+      const id = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       setToasts(prev => [...prev, { id, message: e.detail.message, type: e.detail.type || 'info' }]);
     };
     window.addEventListener('app_notification', handler);
